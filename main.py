@@ -34,6 +34,19 @@ def main() -> int:
 
     with open(path, "w", encoding="utf-8", newline="") as f:
         f.write(EXCUSE)
+
+    # Post-write verification: read the file back and confirm its bytes
+    # are exactly the expected line. A silent write failure (disk error,
+    # encoding surprise, partial flush) must not pass the gate.
+    with open(path, "rb") as f:
+        written = f.read()
+    if written != EXCUSE.encode("utf-8"):
+        print(
+            f"verification failed: {path} does not match expected bytes "
+            f"(got {len(written)} bytes, expected {len(EXCUSE)} chars)",
+            file=sys.stderr,
+        )
+        return 1
     print(f"wrote {path} ({len(EXCUSE)} chars)")
     return 0
 
